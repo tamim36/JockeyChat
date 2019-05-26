@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1046870210855",
+    "firebase_url": "https://jockeychat.firebaseio.com",
+    "project_id": "jockeychat",
+    "storage_bucket": "jockeychat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046870210855:android:21201cd713b310bc",
+        "android_client_info": {
+          "package_name": "com.arefin.jockeychat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1046870210855-donmdfjmt45db79uq7ugg4ulkhi8rhfu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arefin.jockeychat",
+            "certificate_hash": "0242d5363f7cdb18e5a0d5f2469d15d9f4e2cbf8"
+          }
+        },
+        {
+          "client_id": "1046870210855-6p28dcih7kbs26drflq0tajcbbajsj1c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeQkkJHXqvasuMiTQe5P4-9uxBHXR-1Ok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1046870210855-6p28dcih7kbs26drflq0tajcbbajsj1c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
