@@ -10,4 +10,5 @@
     <string name="confirm_password_hint">Confirm password ...</string>
     <string name="reg_create_account">Create Account</string>
     <string name="reg_login_btn">Already Have an account?</string>
+    <string name="account_settings">Account Settings</string>
 </resources>

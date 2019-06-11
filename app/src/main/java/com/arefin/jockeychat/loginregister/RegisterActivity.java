@@ -44,6 +44,13 @@ public class RegisterActivity extends AppCompatActivity {
         regLoginBtn = (Button) findViewById(R.id.reg_login_Btn);
         regProgress = (ProgressBar)findViewById(R.id.regProgressBar);
 
+        regLoginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();             //Destroy this intent and back to login page
+            }
+        });
+
         regBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()){
-                                    sendTomani();
+                                    sendToSetup();
                                 }
                                 else {
                                     String errorMessage = task.getException().getMessage();
@@ -90,12 +97,18 @@ public class RegisterActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null){
-            sendTomani();
+            sendToMain();
         }
     }
 
-    private void sendTomani() {
+    private void sendToMain() {
         Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+        startActivity(mainIntent);
+        finish();
+    }
+
+    private void sendToSetup() {
+        Intent mainIntent = new Intent(RegisterActivity.this, SetupAccount.class);
         startActivity(mainIntent);
         finish();
     }
