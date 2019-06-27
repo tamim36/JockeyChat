@@ -1,15 +1,17 @@
 package com.arefin.jockeychat;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.arefin.jockeychat.loginregister.LoginActivity;
+import com.arefin.jockeychat.loginregister.SetupAccount;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
                 logout();
                 return true;
 
+            case R.id.action_account_settings:
+                sendToSetupAccount();
+                return true;
+
 
                 default:
 
@@ -81,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
     private void sendToLogin() {
         Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(loginIntent);
+        finish();
+    }
+
+    private void sendToSetupAccount() {
+        Intent setupIntent = new Intent(MainActivity.this, SetupAccount.class);
+        startActivity(setupIntent);
         finish();
     }
 }
