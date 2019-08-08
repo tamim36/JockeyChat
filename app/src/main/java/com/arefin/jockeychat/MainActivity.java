@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    // 4 no video starting   10.16 sec
+    // 6 no video starting   13.16 sec
 
     private Toolbar mainToolbar;
     private FirebaseAuth mAuth;

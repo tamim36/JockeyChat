@@ -18,15 +18,26 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.arefin.jockeychat.MainActivity;
 import com.arefin.jockeychat.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -34,12 +45,16 @@ public class SetupAccount extends AppCompatActivity {
 
     private CircleImageView setupImage;
     private Uri mainImageURI = null;
+    private Uri downloadUrl = null;
     private EditText setupName;
     private Button setupBtn;
     private ProgressBar setup_Progress;
 
     private FirebaseAuth firebaseAuth;
     private StorageReference storageReference;
+    private DatabaseReference mDatabase;
+
+    private String user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,23 +71,97 @@ public class SetupAccount extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+
+        user_id =firebaseAuth.getCurrentUser().getUid();
+
+        setup_Progress.setVisibility(View.VISIBLE);
+        setupBtn.setEnabled(false);
+
+        mDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.getValue() != null) {
+
+                    String name = (String) dataSnapshot.child("name").getValue();
+                    String image = (String) dataSnapshot.child("image").getValue();
+
+                    //mainImageURI = Uri.parse(image);
+
+                    setupName.setText(name);
+                    Picasso.with(SetupAccount.this).load(image).placeholder(R.drawable.default_profile_pic).into(setupImage);
+
+                    //Toast.makeText(SetupAccount.this, image, Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(SetupAccount.this, "Null info For this user", Toast.LENGTH_SHORT).show();
+                }
+
+                setup_Progress.setVisibility(View.INVISIBLE);
+                setupBtn.setEnabled(true);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         setupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String userName = setupName.getText().toString();
-                setup_Progress.setVisibility(View.VISIBLE);
+                final String userName = setupName.getText().toString();
+                final String user_id = firebaseAuth.getCurrentUser().getUid();
+
 
                 if (!TextUtils.isEmpty(userName) && mainImageURI != null){
 
-                    String user_id = firebaseAuth.getCurrentUser().getUid();
-                    StorageReference image_path = storageReference.child("pro_pic").child(user_id + ".jpg");
+                    setup_Progress.setVisibility(View.VISIBLE);
+
+
+                    final StorageReference image_path = storageReference.child("pro_pic").child(user_id + ".jpg");
+
+
                     image_path.putFile(mainImageURI).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
                             if (task.isSuccessful()){
+
+                                image_path.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        //downloadUrl = uri;
+                                        //userMap.put("image", uri.toString());
+                                        mDatabase.child(user_id).child("image").setValue(uri.toString());
+
+                                        mDatabase.child(user_id).child("name").setValue(userName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()){
+                                                    setup_Progress.setVisibility(View.INVISIBLE);
+                                                    startActivity(new Intent(SetupAccount.this, MainActivity.class));
+                                                    finish();
+
+                                                } else {
+                                                    String error = task.getException().getMessage();
+                                                    Toast.makeText(SetupAccount.this, "error on mdatabase "+error, Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+
+                                    }
+                                });
+
+
+                                //Toast.makeText(SetupAccount.this, downloadUrl.toString(), Toast.LENGTH_SHORT).show();
+                                //userMap.put("image", downloadUrl.toString());
+
+
+
                                 Toast.makeText(SetupAccount.this, "Uploaded SuccessFully !!", Toast.LENGTH_LONG).show();
                             }
                             else {
@@ -81,6 +170,24 @@ public class SetupAccount extends AppCompatActivity {
                             }
                             setup_Progress.setVisibility(View.INVISIBLE);
 
+                        }
+                    });
+
+                }
+                //When Only name change
+                else if (!TextUtils.isEmpty(userName) && mainImageURI == null){
+                    mDatabase.child(user_id).child("name").setValue(userName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                setup_Progress.setVisibility(View.INVISIBLE);
+                                startActivity(new Intent(SetupAccount.this, MainActivity.class));
+                                finish();
+
+                            } else {
+                                String error = task.getException().getMessage();
+                                Toast.makeText(SetupAccount.this, "error on mdatabase "+error, Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
 
