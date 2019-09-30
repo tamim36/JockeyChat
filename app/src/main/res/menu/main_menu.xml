@@ -11,6 +11,9 @@
         android:id="@+id/action_account_settings"
         android:title="@string/action_account_settings" />
     <item
+        android:id="@+id/action_story_activity"
+        android:title="Story" />
+    <item
         android:id="@+id/action_logout"
         android:title="@string/action_logout" />
 </menu>

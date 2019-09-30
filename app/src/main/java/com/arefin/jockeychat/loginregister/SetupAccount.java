@@ -32,6 +32,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -78,35 +80,11 @@ public class SetupAccount extends AppCompatActivity {
         setup_Progress.setVisibility(View.VISIBLE);
         setupBtn.setEnabled(false);
 
-        mDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        retrieveUserData();
 
-                if (dataSnapshot.getValue() != null) {
 
-                    String name = (String) dataSnapshot.child("name").getValue();
-                    String image = (String) dataSnapshot.child("image").getValue();
 
-                    //mainImageURI = Uri.parse(image);
 
-                    setupName.setText(name);
-                    Picasso.with(SetupAccount.this).load(image).placeholder(R.drawable.default_profile_pic).into(setupImage);
-
-                    //Toast.makeText(SetupAccount.this, image, Toast.LENGTH_SHORT).show();
-
-                } else {
-                    Toast.makeText(SetupAccount.this, "Null info For this user", Toast.LENGTH_SHORT).show();
-                }
-
-                setup_Progress.setVisibility(View.INVISIBLE);
-                setupBtn.setEnabled(true);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
 
         setupBtn.setOnClickListener(new View.OnClickListener() {
@@ -143,6 +121,7 @@ public class SetupAccount extends AppCompatActivity {
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()){
                                                     setup_Progress.setVisibility(View.INVISIBLE);
+                                                    retrieveUserData();
                                                     startActivity(new Intent(SetupAccount.this, MainActivity.class));
                                                     finish();
 
@@ -220,6 +199,7 @@ public class SetupAccount extends AppCompatActivity {
         });
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -235,5 +215,52 @@ public class SetupAccount extends AppCompatActivity {
                 Exception error = result.getError();
             }
         }
+    }
+
+
+    private void retrieveUserData() {
+
+        // ------------- Retrieve Name and Image from database -----------------//
+        mDatabase.child(user_id).keepSynced(true);
+        mDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.getValue() != null) {
+
+                    String name = (String) dataSnapshot.child("name").getValue();
+                    final String image = (String) dataSnapshot.child("image").getValue();
+
+
+                    setupName.setText(name);
+                    Picasso.get().load(image).placeholder(R.drawable.default_profile_pic).into(setupImage);
+
+                    Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
+                            .placeholder(R.drawable.default_profile_pic).into(setupImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Picasso.get().load(image).placeholder(R.drawable.default_profile_pic).into(setupImage);
+                        }
+                    });
+
+                } else {
+                    Toast.makeText(SetupAccount.this, "Null info For this user", Toast.LENGTH_SHORT).show();
+                }
+
+                setup_Progress.setVisibility(View.INVISIBLE);
+                setupBtn.setEnabled(true);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 }

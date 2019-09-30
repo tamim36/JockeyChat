@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.arefin.jockeychat.loginregister.LoginActivity;
 import com.arefin.jockeychat.loginregister.SetupAccount;
+import com.arefin.jockeychat.storiesthing.StoryMain;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -70,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
                 sendToSetupAccount();
                 return true;
 
+            case R.id.action_story_activity:
+                sendToStoryMain();
+                return true;
+
 
                 default:
 
@@ -92,6 +97,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendToSetupAccount() {
         Intent setupIntent = new Intent(MainActivity.this, SetupAccount.class);
+        startActivity(setupIntent);
+        finish();
+    }
+
+    private void sendToStoryMain() {
+        Intent setupIntent = new Intent(MainActivity.this, StoryMain.class);
         startActivity(setupIntent);
         finish();
     }
